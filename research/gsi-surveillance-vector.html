@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic System Update Infrastructure as an Unauthorised Remote Surveillance Vector — Rabah Khan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --cream: #fdf8f0;
+  --cream-dark: #f5ede0;
+  --ink: #0f0d0b;
+  --ink-mid: #2a2520;
+  --ink-light: #5a5248;
+  --ink-faint: #9a9088;
+  --midnight: #0a1628;
+  --crimson: #8b1a1a;
+  --crimson-light: #c0392b;
+  --crimson-pale: #fdf0f0;
+  --gold: #8b6914;
+  --gold-pale: #fdf8e8;
+  --rule: #d8cfc0;
+  --rule-light: #ece5d8;
+  --blue-ink: #1a3a5c;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+/* PAGE WRAPPER */
+.page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 80px 40px 100px;
+}
+
+/* JOURNAL HEADER */
+.journal-bar {
+  background: var(--midnight);
+  color: rgba(255,255,255,0.6);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.journal-bar span { color: rgba(255,255,255,0.4); }
+.journal-bar .journal-name { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+/* TITLE BLOCK */
+.title-block {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 40px;
+  margin-bottom: 36px;
+}
+
+.paper-category {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.paper-category::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--crimson);
+  opacity: 0.3;
+}
+
+h1.paper-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--midnight);
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.paper-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-style: italic;
+  color: var(--ink-light);
+  font-weight: 400;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+/* AUTHOR BLOCK */
+.author-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.author-name {
+  font-family: 'Crimson Pro', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.author-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+
+.author-meta a {
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
+/* META ROW */
+.meta-row {
+  display: flex;
+  gap: 32px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+
+.meta-item .meta-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 2px;
+}
+
+.meta-item .meta-value {
+  font-size: 14px;
+  color: var(--ink-mid);
+  font-weight: 500;
+}
+
+/* ABSTRACT */
+.abstract-block {
+  background: var(--cream-dark);
+  border-left: 3px solid var(--midnight);
+  padding: 28px 32px;
+  margin-bottom: 40px;
+}
+
+.abstract-block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--midnight);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.abstract-block p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  font-style: italic;
+}
+
+/* KEYWORDS */
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 52px;
+  align-items: center;
+}
+
+.keywords-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-right: 4px;
+}
+
+.keyword {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--midnight);
+  background: var(--cream-dark);
+  border: 1px solid var(--rule);
+  padding: 3px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+/* SECTION RULE */
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 48px 0;
+}
+
+/* HEADINGS */
+h2.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--midnight);
+  margin-bottom: 6px;
+  margin-top: 52px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+h2.section-heading .sec-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--crimson);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  min-width: 28px;
+}
+
+h3.sub-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 32px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+h3.sub-heading .sub-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: normal;
+  margin-right: 8px;
+}
+
+/* BODY TEXT */
+p {
+  margin-bottom: 18px;
+  font-size: 18px;
+  color: var(--ink);
+  line-height: 1.8;
+  text-align: justify;
+  hyphens: auto;
+}
+
+p:first-of-type::first-letter {
+  /* Only for specific sections */
+}
+
+.drop-cap::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 0.75;
+  float: left;
+  margin-right: 8px;
+  margin-top: 8px;
+  color: var(--midnight);
+}
+
+/* PULL QUOTE */
+.pull-quote {
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding: 24px 0 20px;
+  margin: 36px 0;
+}
+
+.pull-quote p {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-style: italic;
+  color: var(--midnight);
+  text-align: left;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* FIGURE / DIAGRAM */
+.figure {
+  margin: 36px 0;
+  border: 1px solid var(--rule);
+}
+
+.figure-inner {
+  background: var(--midnight);
+  padding: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 2;
+  color: rgba(255,255,255,0.7);
+  overflow-x: auto;
+}
+
+.figure-caption {
+  background: var(--cream-dark);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--ink-light);
+  border-top: 1px solid var(--rule);
+  font-style: italic;
+}
+
+.figure-caption strong {
+  font-style: normal;
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.diagram-node {
+  display: inline-block;
+  padding: 4px 14px;
+  border: 1px solid;
+  border-radius: 2px;
+  font-size: 11px;
+}
+
+.node-red { border-color: #e05050; color: #e05050; background: rgba(200,50,50,0.1); }
+.node-amber { border-color: #d4860a; color: #d4860a; background: rgba(180,120,0,0.1); }
+.node-blue { border-color: #5090d0; color: #90c0f0; background: rgba(50,100,200,0.1); }
+.node-green { border-color: #40a060; color: #70c090; background: rgba(50,150,80,0.1); }
+.node-grey { border-color: #607080; color: #a0b0c0; background: rgba(60,80,100,0.1); }
+
+.diagram-arrow { color: rgba(255,255,255,0.3); padding: 0 8px; }
+
+/* TABLE */
+.research-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 15px;
+}
+
+.research-table caption {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  text-align: left;
+  padding-bottom: 8px;
+  caption-side: top;
+}
+
+.research-table th {
+  background: var(--midnight);
+  color: rgba(255,255,255,0.8);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.research-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--rule-light);
+  vertical-align: top;
+  color: var(--ink-mid);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.research-table tr:nth-child(even) td { background: var(--cream-dark); }
+
+/* CALLOUT */
+.callout {
+  border-left: 3px solid var(--crimson);
+  background: var(--crimson-pale);
+  padding: 18px 24px;
+  margin: 28px 0;
+}
+
+.callout-warning {
+  border-left-color: var(--gold);
+  background: var(--gold-pale);
+}
+
+.callout-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.callout-warning .callout-label { color: var(--gold); }
+
+.callout p {
+  font-size: 15px;
+  color: var(--ink-mid);
+  text-align: left;
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* FINDING BLOCK */
+.finding-block {
+  border: 1px solid var(--rule);
+  margin: 24px 0;
+  border-top: 2px solid var(--midnight);
+}
+
+.finding-header {
+  background: var(--midnight);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.finding-num-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.15em;
+}
+
+.finding-title {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+
+.finding-body {
+  padding: 18px 20px;
+  background: var(--cream);
+}
+
+.finding-body p {
+  font-size: 15px;
+  margin-bottom: 0;
+  line-height: 1.7;
+  color: var(--ink-mid);
+}
+
+/* CODE */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--cream-dark);
+  border: 1px solid var(--rule);
+  padding: 1px 6px;
+  border-radius: 2px;
+  color: var(--ink-mid);
+}
+
+/* LISTS */
+ul, ol {
+  margin: 0 0 18px 24px;
+}
+
+li {
+  margin-bottom: 8px;
+  font-size: 17px;
+  color: var(--ink);
+  line-height: 1.7;
+}
+
+li strong { color: var(--midnight); }
+
+/* FOOTNOTE */
+.footnotes {
+  border-top: 1px solid var(--rule);
+  margin-top: 60px;
+  padding-top: 24px;
+}
+
+.footnotes h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+
+.footnotes ol {
+  margin-left: 20px;
+}
+
+.footnotes li {
+  font-size: 14px;
+  color: var(--ink-light);
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
+/* AI DISCLOSURE */
+.ai-disclosure {
+  border: 1px solid var(--rule);
+  padding: 16px 20px;
+  margin-top: 32px;
+  background: var(--cream-dark);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ai-disclosure-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.ai-disclosure p {
+  font-size: 13px;
+  color: var(--ink-light);
+  text-align: left;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .page { padding: 40px 20px 60px; }
+  h1.paper-title { font-size: 28px; }
+  .meta-row { gap: 16px; }
+  .drop-cap::first-letter { font-size: 48px; }
+}
+
+@media print {
+  .journal-bar { background: #222; }
+  .figure-inner { background: #111; }
+  body { font-size: 16px; }
+}
+
+/* ANIMATION */
+.page { animation: fadeIn 0.6s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- JOURNAL BAR -->
+<div class="journal-bar">
+  <span class="journal-name">Independent Security Research</span>
+  <span>Cybercrime &amp; Mobile Forensics &nbsp;·&nbsp; 31 May 2026 &nbsp;·&nbsp; Original Research</span>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- TITLE BLOCK -->
+  <div class="title-block">
+    <div class="paper-category">Original Research &nbsp;·&nbsp; Mobile Security &nbsp;·&nbsp; Digital Forensics</div>
+
+    <h1 class="paper-title">Dynamic System Update Infrastructure as an Unauthorised Remote Surveillance Vector</h1>
+
+    <div class="paper-subtitle">A Forensic Case Study of Active GSI Configuration on an End-of-Support Android Device Running Xiaomi HyperOS</div>
+
+    <div class="author-block">
+      <div class="author-name">Rabah Khan</div>
+      <div class="author-meta">Independent Investigative Researcher &nbsp;·&nbsp; Digital Forensics &amp; Cybercrime Analysis &nbsp;·&nbsp; 31 May 2026</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <div class="meta-label">Submitted</div>
+        <div class="meta-value">31 May 2026</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Published</div>
+        <div class="meta-value">31 May 2026</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Subject Device</div>
+        <div class="meta-value">Xiaomi 11T Pro — HyperOS / Android 14</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Research Type</div>
+        <div class="meta-value">Active Case Study</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Classification</div>
+        <div class="meta-value">Original Research — Open Publication</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABSTRACT -->
+  <div class="abstract-block">
+    <h2>Abstract</h2>
+    <p>This paper presents a forensic analysis of an active case in which a consumer Android device — a Xiaomi 11T Pro running HyperOS, officially limited to Android 14 — was found to contain fully functional Dynamic System Update (DSU) infrastructure pre-configured with Android 16 Generic System Image (GSI) builds. The device had never officially supported Android 15 or 16, and the DSU Loader was not accessible through standard Developer Options, yet remained fully operational and actively connected to Google's GSI download servers. The research identifies three technically viable operational models under which this infrastructure could be exploited as an unauthorised surveillance and remote control vector — with particular focus on a Remote Emulator Architecture in which the subject device operates as a relay and identity source for a remotely hosted Android environment. All observed security anomalies — including dangerous property flags, Package Manager irregularities, test build detection, and emulator environment signatures — are mapped to this architectural model. The paper concludes with forensic implications for court-bound investigations and a set of recommended examination procedures for similar cases.</p>
+  </div>
+
+  <!-- KEYWORDS -->
+  <div class="keywords">
+    <span class="keywords-label">Keywords</span>
+    <span class="keyword">DSU</span>
+    <span class="keyword">Generic System Image</span>
+    <span class="keyword">Android</span>
+    <span class="keyword">HyperOS</span>
+    <span class="keyword">Remote Emulator</span>
+    <span class="keyword">Device Cloning</span>
+    <span class="keyword">Mobile Forensics</span>
+    <span class="keyword">Project Treble</span>
+    <span class="keyword">Surveillance Vector</span>
+    <span class="keyword">Cybercrime</span>
+  </div>
+
+  <!-- 1. INTRODUCTION -->
+  <h2 class="section-heading"><span class="sec-num">1.</span> Introduction</h2>
+
+  <p class="drop-cap">The proliferation of sophisticated Android-based surveillance architectures has introduced a class of threats that operate not through conventional malware installation, but through the exploitation of legitimate, manufacturer-supplied system infrastructure. This paper documents one such case: the discovery of active, configured Dynamic System Update (DSU) infrastructure on a personal Android device, pre-loaded with Generic System Image (GSI) builds representing Android versions two generations beyond the device's officially supported maximum.</p>
+
+  <p>The subject of this investigation — a Xiaomi 11T Pro running HyperOS on Android 14 — had been in continuous personal use for five years. The device's owner, conducting a broader investigation into unauthorised device cloning and suspicious access patterns across multiple Google accounts, discovered through a third-party diagnostic application that a hidden DSU Loader existed on the device. Tapping the loader's configured options triggered a live connection to Google's servers and presented a Terms of Service agreement for Android 16 Early Access GSI — a build released in 2025 and representing functionality entirely beyond what Xiaomi officially supports on this hardware.</p>
+
+  <p>This discovery, taken in isolation, might be dismissed as an artefact of Android's underlying architecture. Taken in the context of persistent security application alerts — dangerous system property flags, Package Manager anomalies, test build signatures, and emulator environment detection — it forms a coherent and technically consistent picture of infrastructure configured for purposes beyond legitimate developer testing.</p>
+
+  <div class="pull-quote">
+    <p>"The device was not running a GSI. The device was configured to be one."</p>
+  </div>
+
+  <p>This paper presents the full technical architecture of DSU-based remote operation, maps each observed anomaly to a specific component of that architecture, and proposes a unified model — the Remote Emulator Architecture — that accounts for every observed irregularity as a single coherent system. It further examines the forensic implications for investigators operating in court-adjacent contexts and identifies the ways in which standard mobile forensic practice will fail to surface evidence of this activity.</p>
+
+  <!-- 2. BACKGROUND -->
+  <h2 class="section-heading"><span class="sec-num">2.</span> Technical Background</h2>
+
+  <h3 class="sub-heading"><span class="sub-num">2.1</span> Dynamic System Update (DSU)</h3>
+
+  <p>Dynamic System Update is a native Android feature introduced in Android 10 (API level 29) by Google. Its stated purpose is to allow developers to temporarily boot a Generic System Image alongside their device's primary operating system without permanently modifying the device's existing partition structure. DSU achieves this by creating a separate dynamic logical partition at runtime, into which the GSI is installed. The primary operating system remains untouched; on the next ordinary reboot, the device returns to its original state.</p>
+
+  <p>A critical design characteristic of DSU is that it does not require an unlocked bootloader. This distinguishes it from conventional device modification approaches (such as flashing custom ROMs) and means that DSU activation leaves none of the standard indicators — unlocked bootloader warnings, recovery mode changes, or factory reset — that digital forensics practitioners typically look for when assessing device modification.</p>
+
+  <h3 class="sub-heading"><span class="sub-num">2.2</span> Generic System Images (GSI)</h3>
+
+  <p>A Generic System Image is a build of Android that adheres to Google's Treble-compliant partition structure, enabling it to boot on any compatible device regardless of manufacturer. GSI builds are produced by Google and carry the core Android Open Source Project (AOSP) codebase, with optional inclusion of Google Mobile Services (GMS). They are explicitly described in Google's developer documentation as experimental tools for developer use, noting that their use may void device warranties, erase data, and render portions of a device non-functional. GSI releases are not Compatibility Test Suite (CTS)-certified — a detail of forensic significance, as this means the standard Android security certification chain does not apply to them.</p>
+
+  <h3 class="sub-heading"><span class="sub-num">2.3</span> Project Treble</h3>
+
+  <p>Project Treble, introduced with Android 8.0 Oreo in 2017, restructured the Android codebase to separate the Android OS framework from device-specific vendor implementations. This architectural separation enables GSI compatibility across device families and is signalled by the system property <code>ro.treble.enabled=true</code>. The Xiaomi 11T Pro is fully Treble-compliant. Security analysis tools detecting Project Treble on this device were detecting a legitimate architectural feature — however, when combined with the additional anomalies documented here, its detection takes on additional investigative significance.</p>
+
+  <h3 class="sub-heading"><span class="sub-num">2.4</span> Android Virtualization Framework (AVF)</h3>
+
+  <p>The Android Virtualization Framework, introduced in Android 13, extends the DSU concept by enabling protected Virtual Machines to run concurrently with the primary Android operating system using hardware-level ARM virtualisation extensions. The Snapdragon 888 System-on-Chip present in the Xiaomi 11T Pro includes these ARM virtualisation extensions, meaning the hardware is technically capable of running a concurrent VM environment. Where standard DSU requires a reboot to switch between environments, AVF-based virtualisation enables simultaneous operation — the primary OS continues to run while a secondary environment operates in an isolated but hardware-sharing VM.</p>
+
+  <!-- 3. CASE PROFILE -->
+  <h2 class="section-heading"><span class="sec-num">3.</span> Case Profile</h2>
+
+  <h3 class="sub-heading"><span class="sub-num">3.1</span> Subject Device</h3>
+
+  <table class="research-table">
+    <caption>Table 1. Subject Device Profile</caption>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Device</td><td>Xiaomi 11T Pro</td></tr>
+      <tr><td>Processor</td><td>Qualcomm Snapdragon 888 (ARM64, virtualisation-capable)</td></tr>
+      <tr><td>Operating System</td><td>Xiaomi HyperOS (Android 14)</td></tr>
+      <tr><td>Maximum Supported Android</td><td>Android 14 — no further official updates</td></tr>
+      <tr><td>Years in Use</td><td>5 years (continuous personal use by owner)</td></tr>
+      <tr><td>Bootloader Status</td><td>Standard consumer (not required to be unlocked for DSU)</td></tr>
+      <tr><td>Project Treble Compliant</td><td>Yes — <code>ro.treble.enabled=true</code></td></tr>
+      <tr><td>DSU in Developer Options</td><td>Not present — hidden by Xiaomi in HyperOS</td></tr>
+      <tr><td>DSU Framework Status</td><td>Active and fully functional via hidden Android Activity</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub-heading"><span class="sub-num">3.2</span> Context of Discovery</h3>
+
+  <p>The device's owner was conducting a formal investigation into unauthorised device cloning and suspicious access patterns across multiple personal Google accounts, evidenced in part by identical IMEI and serial numbers registered across different accounts and access events routed through commercial VPN infrastructure including Hern Labs AB (Sweden), Mullvad VPN, NordVPN, and Cloudflare WARP. In the course of this investigation, the owner installed a third-party diagnostic application — Hidden Settings — which surfaces normally inaccessible Android system components by directly launching system Activities through the Android Package Manager, bypassing the standard Settings UI entirely.</p>
+
+  <p>Through Hidden Settings, the owner navigated to a Testing and Diagnostics section containing a DSU Loader option. Upon tapping the loader, two options were presented: <em>GSI ARM64</em> and <em>GSI+GMS ARM64</em>. Selecting either option produced an active connection to Google's servers and presented a Terms of Service agreement for the Early Access Google Mobile Services and Android 16 GSI licence — a build from 2025 representing a version of Android two generations beyond the device's officially supported maximum.</p>
+
+  <div class="callout">
+    <div class="callout-label">Significant Detail</div>
+    <p>The owner did not agree to the Terms of Service and did not proceed with any GSI installation. The DSU Loader infrastructure was therefore in a pre-activation state at the time of examination. The security anomalies described in Section 4 preceded this discovery and had been present for a substantial period prior.</p>
+  </div>
+
+  <!-- 4. OBSERVED ANOMALIES -->
+  <h2 class="section-heading"><span class="sec-num">4.</span> Observed Security Anomalies</h2>
+
+  <p>Prior to the DSU Loader discovery, multiple third-party security applications had independently flagged a set of anomalies on the subject device. These flags, taken individually, might be attributed to various causes. Taken together and mapped against the DSU/GSI infrastructure subsequently discovered, they form a consistent and technically coherent pattern.</p>
+
+  <table class="research-table">
+    <caption>Table 2. Security Flag Taxonomy and Technical Attribution</caption>
+    <thead>
+      <tr>
+        <th>Observed Flag</th>
+        <th>Technical Attribution</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Dangerous properties installed</strong></td>
+        <td>GSI and DSU frameworks set system build properties including <code>ro.debuggable=1</code>, <code>ro.secure=0</code>, and <code>ro.build.type=userdebug</code>. These are standard in GSI/test builds and are flagged by security tools as indicators of a non-certified, potentially compromised environment.</td>
+      </tr>
+      <tr>
+        <td><strong>Package Manager anomalies (red/blue)</strong></td>
+        <td>The Package Manager in an environment influenced by DSU configuration or a concurrently running secondary Android environment presents state inconsistencies relative to a clean certified build. Colour-coded alert states indicate the PM's runtime environment does not match expected certified signatures.</td>
+      </tr>
+      <tr>
+        <td><strong>Running test builds</strong></td>
+        <td>GSI images carry <code>BUILD_TYPE=userdebug</code> or <code>BUILD_TYPE=eng</code> by definition. The presence of these signatures detectable on the device indicates that GSI-origin system properties are influencing the runtime environment observed by security scanning tools.</td>
+      </tr>
+      <tr>
+        <td><strong>Device identified as emulator</strong></td>
+        <td>GSI builds are architecturally identical to Android emulator images used in developer environments. They share the same build fingerprint structure, property configurations, and system signatures. Security tools use these exact signatures for emulator detection; a device with active GSI properties will test positive for emulator environment.</td>
+      </tr>
+      <tr>
+        <td><strong>Project Treble GSI detection</strong></td>
+        <td>System analysis tools detected the device in a state consistent with GSI deployment readiness — active Treble separation combined with configured DSU infrastructure — rather than the passive Treble compatibility present in a standard consumer device.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 5. THREE OPERATIONAL MODELS -->
+  <h2 class="section-heading"><span class="sec-num">5.</span> Three Operational Models</h2>
+
+  <p>The DSU/GSI infrastructure found on the subject device is consistent with three technically distinct operational models, each representing a different method by which the GSI environment could be exploited. These models are not mutually exclusive and may operate in combination.</p>
+
+  <h3 class="sub-heading"><span class="sub-num">5.1</span> Model I — Sequential Dual-Boot</h3>
+
+  <p>In the standard DSU operational model, the GSI is installed into the dynamic partition and the device is rebooted into the GSI environment. The primary operating system (HyperOS) remains installed and unmodified; the device runs one environment or the other, not both simultaneously. Upon a subsequent normal reboot, the device returns to HyperOS. The GSI partition can then be deleted, leaving no OS-level trace of the secondary environment's activities.</p>
+
+  <p>This model is fully operational on the subject device. Its primary forensic characteristic is its near-zero trace profile within the primary OS: actions taken during a GSI session do not appear in HyperOS logs, and the deletion of the GSI partition removes the primary evidence of the session's existence.</p>
+
+  <h3 class="sub-heading"><span class="sub-num">5.2</span> Model II — Concurrent Virtualisation (AVF)</h3>
+
+  <p>Utilising the Android Virtualization Framework available on Android 13+ devices with ARM virtualisation-capable hardware, a GSI-derived environment can operate as a protected Virtual Machine concurrently with the primary OS. The Snapdragon 888 in the subject device supports this. Under this model, HyperOS remains active and visible to the device owner while the VM operates in parallel, sharing the device's hardware via the Hardware Abstraction Layer.</p>
+
+  <p>This model would explain security tool detections occurring while the user is actively using HyperOS normally — the emulator-like signatures and test build properties originate from the concurrently running VM environment rather than from HyperOS itself.</p>
+
+  <h3 class="sub-heading"><span class="sub-num">5.3</span> Model III — Remote Emulator Architecture</h3>
+
+  <p>The third model — and the one most consistent with the full body of evidence — does not require the GSI to run on the subject device at all. In this architecture, a complete Android environment (in this case, Android 16) runs on a remote server or cloud emulator infrastructure. The subject device functions as a client relay and identity source: it provides hardware identifiers, network connectivity, account credentials, and session tokens to the remote environment, which in turn operates using the device's identity to authenticate, access accounts, and conduct activity.</p>
+
+  <div class="figure">
+    <div class="figure-inner">
+      <div style="color:rgba(255,255,255,0.4); font-size:10px; letter-spacing:0.2em; margin-bottom:20px;">FIGURE 1 — REMOTE EMULATOR ARCHITECTURE: DATA FLOW MODEL</div>
+
+      <div style="margin-bottom:12px;">
+        <span class="diagram-node node-grey">SUBJECT DEVICE (HyperOS / Android 14)</span>
+        <span class="diagram-arrow"> ←——→ </span>
+        <span class="diagram-node node-red">REMOTE SERVER (Android 16 GSI Emulator)</span>
+      </div>
+
+      <div style="font-size:11px; color:rgba(255,255,255,0.35); padding:4px 0 4px 20px; line-height:2;">
+        Device → Server &nbsp;:&nbsp; IMEI · Serial Number · Account Tokens · Network Session · Hardware Data · SMS / 2FA Codes<br>
+        Server → Device &nbsp;:&nbsp; Commands · Access Requests · Exfiltration Tasks · Configuration Updates
+      </div>
+
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <div>
+          <span class="diagram-node node-amber">Google Account Session</span>
+          <span class="diagram-arrow">——→</span>
+          <span class="diagram-node node-red">Remote Environment Authenticates as Device Owner</span>
+        </div>
+        <div>
+          <span class="diagram-node node-amber">Device IMEI / Hardware ID</span>
+          <span class="diagram-arrow">——→</span>
+          <span class="diagram-node node-red">Remote Environment Registers Cloned Device Identity</span>
+        </div>
+        <div>
+          <span class="diagram-node node-amber">VPN Tunnel</span>
+          <span class="diagram-arrow">——→</span>
+          <span class="diagram-node node-red">Server Location Anonymised — Traffic Appears as VPN Exit</span>
+        </div>
+        <div>
+          <span class="diagram-node node-blue">HyperOS — User Sees Normal Interface</span>
+          <span class="diagram-arrow"> &nbsp;·&nbsp; </span>
+          <span class="diagram-node node-red">Remote OS Operates Independently with Full Device Capabilities</span>
+        </div>
+      </div>
+    </div>
+    <div class="figure-caption"><strong>Figure 1.</strong> The Remote Emulator Architecture model. The subject device provides identity and relay functions while a remote Android 16 environment conducts operations using the device's credentials and hardware signatures. The device owner's HyperOS interface shows no indication of parallel activity.</div>
+  </div>
+
+  <p>This model explains emulator detection in a manner the other two models do not fully account for: the device's own system properties may be partially configured to interact with a remote Android environment, causing the device to exhibit behaviours consistent with an emulator client — because, in functional terms, it is operating as one.</p>
+
+  <!-- 6. THE ANDROID 16 DISPARITY -->
+  <h2 class="section-heading"><span class="sec-num">6.</span> The Version Disparity and Its Operational Significance</h2>
+
+  <p>The GSI builds configured on the subject device are Android 16 — released by Google in 2025. The device officially supports a maximum of Android 14. This two-version disparity is not merely a technical curiosity; it carries direct operational implications.</p>
+
+  <p>Android 15 and 16 introduced permission framework changes, expanded hardware API access, and new system-level capabilities that Android 14's security model was designed without reference to. An environment operating under Android 16 on hardware running Android 14 can invoke API calls and permission requests that the device's primary OS was never designed to anticipate, block, or log. The security controls Xiaomi built into HyperOS for Android 14 do not extend to Android 16 system call patterns.</p>
+
+  <p>Furthermore, the GSI+GMS variant carries Google Play Services build 25.08.34 — significantly newer than the Play Services version available to HyperOS on this device. Newer GMS versions carry expanded system access privileges, and Play Services operates with elevated permissions that no user-installed application can replicate.</p>
+
+  <div class="callout callout-warning">
+    <div class="callout-label">Forensic Note</div>
+    <p>A device running Android 14 and examined using Android 14-era forensic tools and frameworks will not surface activity conducted by an Android 16 environment operating on the same hardware. The vulnerability surface of Android 16 is not mapped by Android 14 security tooling. This gap is operationally significant and forensically consequential.</p>
+  </div>
+
+  <!-- 7. CORRELATION WITH ATTACK INFRASTRUCTURE -->
+  <h2 class="section-heading"><span class="sec-num">7.</span> Correlation with Known Attack Infrastructure</h2>
+
+  <p>The Remote Emulator Architecture model requires a communication channel between the subject device and the remote server. This channel must fulfil two functions: it must deliver commands from the remote environment to the device, and it must exfiltrate data, credentials, and session tokens from the device to the remote environment. The channel must also conceal the remote server's true location and identity.</p>
+
+  <p>The VPN infrastructure documented across the broader investigation associated with this device — Hern Labs AB (Sweden), Mullvad VPN, NordVPN, and Cloudflare WARP — is entirely consistent with the requirements of such a command-and-control layer. Each of these services provides encrypted tunnelling and anonymised exit node routing capable of concealing both the origin of account access events and the identity of the remote server from standard IP-based forensic analysis.</p>
+
+  <table class="research-table">
+    <caption>Table 3. Command and Control Channel Analysis</caption>
+    <thead>
+      <tr>
+        <th>Channel Type</th>
+        <th>Method</th>
+        <th>Detectability</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>GMS / Firebase Cloud Messaging</strong></td>
+        <td>Google's push notification infrastructure carries arbitrary data payloads silently over standard HTTPS. Traffic is indistinguishable from legitimate Google service communication.</td>
+        <td>Very low</td>
+      </tr>
+      <tr>
+        <td><strong>ADB over Network</strong></td>
+        <td>Android Debug Bridge wireless mode (Android 11+) permits full remote command execution without USB connection. If active, provides complete shell-level device access from any network-accessible endpoint.</td>
+        <td>Low — requires traffic analysis</td>
+      </tr>
+      <tr>
+        <td><strong>VPN Tunnel</strong></td>
+        <td>An always-on VPN routes all device traffic through a controlled remote server. The server receives all device traffic, can inject commands, and operates as a man-in-the-middle for all unencrypted application communications.</td>
+        <td>Low — traffic appears as VPN</td>
+      </tr>
+      <tr>
+        <td><strong>Privileged System Application</strong></td>
+        <td>An application installed in <code>/system/priv-app</code> operates with elevated permissions, survives factory resets, and can silently receive and execute commands. Invisible in standard app listings.</td>
+        <td>Very low</td>
+      </tr>
+      <tr>
+        <td><strong>DSU Configuration Update</strong></td>
+        <td>The DSU Loader configuration can be updated to point to an attacker-controlled server rather than Google's official GSI servers. The device then downloads and potentially boots a custom-built GSI containing additional components. The user interface remains identical to legitimate DSU operation.</td>
+        <td>Very low without source verification</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 8. FORENSIC IMPLICATIONS -->
+  <h2 class="section-heading"><span class="sec-num">8.</span> Forensic Implications</h2>
+
+  <p>The operational models described in this paper present a set of specific challenges for digital forensics practitioners approaching cases of this type. Standard mobile forensic practice — whether logical extraction, file system acquisition, or even physical imaging of the primary partition — will not surface evidence of GSI environment activity, Remote Emulator Architecture operations, or the system property modifications introduced by DSU infrastructure.</p>
+
+  <p>Specifically, a forensic examination of the HyperOS partition will not contain: activity logs from GSI sessions, commands received from remote servers, data exfiltrated during secondary environment operations, network transactions conducted by a concurrent VM, or modifications made to system properties by DSU framework activation.</p>
+
+  <div class="callout">
+    <div class="callout-label">Recommended Examination Procedures</div>
+    <p>A complete investigation of a device suspected of DSU/GSI-based compromise should include: (1) full physical extraction including dynamic partition table state; (2) complete <code>getprop</code> system property dump for test build and debug property indicators; (3) router-level network traffic logs cross-referenced against device MAC address; (4) Google account device registration history and access logs from Takeout data; (5) cross-referencing account access timestamps against periods of verified device inactivity; and (6) specialist forensic examination of the DSU partition state and AVF virtualisation environment.</p>
+  </div>
+
+  <!-- 9. DISCUSSION -->
+  <h2 class="section-heading"><span class="sec-num">9.</span> Discussion</h2>
+
+  <p>The case documented in this paper illustrates a class of Android-based surveillance architecture that is distinguished by several characteristics that set it apart from conventional mobile threat models. It operates through legitimate, manufacturer-supplied infrastructure. It requires no malware installation in the traditional sense. It leaves no trace in the primary operating system. It does not require bootloader modification. And it exploits the gap between a device's official support lifetime and the continued activity of the Android framework components that persist beneath the manufacturer's OS layer.</p>
+
+  <p>The question this raises for the broader security community is not whether DSU can be misused — it evidently can — but whether the architecture of consent and visibility around DSU is adequate for consumer devices that will inevitably reach end-of-support status while continuing to carry active DSU infrastructure. A device that officially receives no further security updates, but continues to maintain functional connectivity to remote Android build servers, represents a persistent attack surface that outlives its manufacturer's support commitment.</p>
+
+  <p>The version disparity identified in this case — Android 16 GSI on an Android 14 device — is not a consequence of deliberate targeting of a specific device model. It is a structural consequence of how DSU configuration updates propagate. The DSU Loader on any compatible device is updated by the Android framework to point to current GSI builds, regardless of whether the device's manufacturer continues to support it. As Google advances through Android versions, the gap between the device's supported OS and the GSI builds available to it grows without bound — and with it, the gap between the device's security controls and the capabilities available to an environment operating through DSU.</p>
+
+  <!-- 10. CONCLUSIONS -->
+  <h2 class="section-heading"><span class="sec-num">10.</span> Conclusions</h2>
+
+  <div class="finding-block">
+    <div class="finding-header">
+      <span class="finding-num-badge">Finding 01</span>
+      <span class="finding-title">Active DSU Infrastructure on End-of-Support Device</span>
+    </div>
+    <div class="finding-body">
+      <p>The subject device contains fully functional, actively configured DSU infrastructure pointing to Android 16 GSI builds from 2025. This configuration is not explicable through any official Xiaomi update or support channel for a device that officially maxes out at Android 14. The infrastructure is operational, remotely connected, and not exposed through standard Developer Options.</p>
+    </div>
+  </div>
+
+  <div class="finding-block">
+    <div class="finding-header">
+      <span class="finding-num-badge">Finding 02</span>
+      <span class="finding-title">All Observed Security Anomalies Explained by GSI Architecture</span>
+    </div>
+    <div class="finding-body">
+      <p>Every security flag observed on the subject device — dangerous property flags, Package Manager anomalies, test build detection, emulator environment detection, and Project Treble GSI detection — is individually and collectively consistent with the presence and configuration of active DSU/GSI infrastructure. No alternative single-cause explanation accounts for the full set of observed anomalies.</p>
+    </div>
+  </div>
+
+  <div class="finding-block">
+    <div class="finding-header">
+      <span class="finding-num-badge">Finding 03</span>
+      <span class="finding-title">Remote Emulator Architecture Is Technically Viable and Evidentially Consistent</span>
+    </div>
+    <div class="finding-body">
+      <p>The Remote Emulator Architecture model — in which the device operates as a relay and identity source for a remotely hosted Android environment — is technically established, consistent with all observed evidence, and directly consistent with the VPN infrastructure and device cloning patterns identified in the broader investigation from which this case emerges.</p>
+    </div>
+  </div>
+
+  <div class="finding-block">
+    <div class="finding-header">
+      <span class="finding-num-badge">Finding 04</span>
+      <span class="finding-title">Standard Forensic Practice Insufficient for This Threat Class</span>
+    </div>
+    <div class="finding-body">
+      <p>Conventional mobile forensic examination of the primary HyperOS partition will not surface evidence of GSI-based or Remote Emulator Architecture activity. Cases of this type require extended forensic procedures including dynamic partition examination, system property analysis, network traffic correlation, and cross-referencing of account access records against device activity timelines.</p>
+    </div>
+  </div>
+
+  <div class="finding-block">
+    <div class="finding-header">
+      <span class="finding-num-badge">Finding 05</span>
+      <span class="finding-title">Structural Vulnerability in Android End-of-Support Lifecycle</span>
+    </div>
+    <div class="finding-body">
+      <p>The case identifies a structural vulnerability in the Android device lifecycle: end-of-support devices retain active DSU infrastructure that continues to be updated with current GSI builds, creating a persistent and widening gap between the device's supported OS capabilities and the capabilities available through the DSU layer. Manufacturer support timelines do not close this gap.</p>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- FOOTNOTES / REFERENCES -->
+  <div class="footnotes">
+    <h2>References and Source Material</h2>
+    <ol>
+      <li>Google Android Developers Documentation — <em>Dynamic System Updates</em>. developer.android.com. Accessed June 2026.</li>
+      <li>Google Android Developers Documentation — <em>Android 16 GSI Binaries and Release Notes</em>. Build BP2A.250605.031.A3, June 2025. developer.android.com/about/versions/16/gsi-release-notes</li>
+      <li>Google Android Developers Documentation — <em>Generic System Image Releases</em>. Includes Android 17 Beta Build CP31.260508.005, May 2026. developer.android.com/topic/generic-system-image/releases</li>
+      <li>Google Android Developers Documentation — <em>Android Virtualization Framework</em>. developer.android.com</li>
+      <li>Android Open Source Project — <em>Project Treble</em>. source.android.com</li>
+      <li>XDA Developers Forum — <em>Dynamic System Updates Technical Discussion</em>. xdaforums.com. Accessed June 2026.</li>
+      <li>BetaWiki — <em>Android 16 build BP41.250822.010</em>. betawiki.net. Accessed June 2026.</li>
+      <li>GSMArena — <em>Android 16 Beta 1 — January 2025</em>. gsmarena.com. Accessed June 2026.</li>
+      <li>Xiaomi official specifications — <em>11T Pro software support documentation</em>. mi.com.</li>
+      <li>Google Takeout access log data — Subject accounts. Personal investigation records, 2025–2026.</li>
+    </ol>
+  </div>
+
+  <!-- AI DISCLOSURE -->
+  <div class="ai-disclosure">
+    <div class="ai-disclosure-icon">AI NOTE</div>
+    <p>This paper was researched and authored by <strong>Rabah Khan</strong> based on direct forensic observation of the subject device and associated investigation records. Technical analysis, architectural modelling, and written composition were produced in collaboration with <strong>Claude Sonnet 4.6</strong> (Anthropic), which served as a research and drafting assistant throughout. All findings and conclusions represent the author's own investigative work. Claude Sonnet 4.6 does not hold authorship.</p>
+  </div>
+
+</div>
+<!-- END PAGE -->
+
+</body>
+</html>
