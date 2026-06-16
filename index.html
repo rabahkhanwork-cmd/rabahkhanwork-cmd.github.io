@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rabah Khan — Research & Publications</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>Rabah Khan — Research &amp; Publications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0f172a;
@@ -82,6 +82,7 @@
       align-items: center;
       gap: 0.4rem;
     }
+    .section-divider { height: 1px; background: var(--border); margin: 3.5rem 0 3rem; }
     footer {
       border-top: 1px solid var(--border);
       padding: 2rem 5%;
@@ -95,11 +96,11 @@
 <body>
   <header>
     <div class="logo">Rabah<span>.</span></div>
-    <a href="https://rabahkhanwork-cmd.github.io" class="back-link">← Portfolio</a>
+    <a href="https://rabahkhanwork-cmd.github.io" class="back-link">Portfolio</a>
   </header>
 
   <main>
-    <div class="page-tag">Research & Publications</div>
+    <div class="page-tag">Research &amp; Publications</div>
     <h1>Independent Research</h1>
     <p class="subtitle">Original investigative research in mobile forensics, cybercrime analysis, and digital security.</p>
 
@@ -112,6 +113,25 @@
       <h2>Dynamic System Update Infrastructure as an Unauthorised Remote Surveillance Vector</h2>
       <p>A forensic case study of active GSI configuration on an end-of-support Android device running Xiaomi HyperOS. Documents the Remote Emulator Architecture model and its forensic implications for court-bound investigations.</p>
       <span class="read-link">Read Paper →</span>
+    </a>
+
+    <div class="section-divider"></div>
+
+    <div class="page-tag">Technical Guides</div>
+    <h1>Guides &amp; How-Tos</h1>
+    <p class="subtitle">Practical troubleshooting documentation from hands-on hardware and software cases.</p>
+
+    <a href="guides/clonezilla-uefi-b51-30/" class="paper-card">
+      <div class="paper-meta">
+        <span class="tag">UEFI</span>
+        <span class="tag">Clonezilla</span>
+        <span class="tag">Lenovo B51-30</span>
+        <span class="tag">InsydeH2O</span>
+        <span class="date">16 Jun 2026</span>
+      </div>
+      <h2>Clonezilla UEFI Boot Failure on Lenovo B51-30 — Complete Fix Guide</h2>
+      <p>Full diagnosis and resolution of USB boot failure on an InsydeH2O UEFI-locked laptop. Covers BIOS password removal, ZIP image format vs ISO, FAT32 requirements, kernel load error recovery, and Ubuntu filesystem backup with fsarchiver.</p>
+      <span class="read-link">Read Guide →</span>
     </a>
   </main>
 
