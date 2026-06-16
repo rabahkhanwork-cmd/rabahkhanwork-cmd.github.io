@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clonezilla UEFI Boot Fix — Lenovo B51-30 Complete Guide | Rabah Khan</title>
+  <meta name="description" content="Step-by-step guide to fix Clonezilla USB boot failure on UEFI-locked Lenovo B51-30: BIOS password removal, ZIP image format, FAT32 setup, and Ubuntu backup with fsarchiver.">
+  <meta name="keywords" content="Clonezilla UEFI, Lenovo B51-30, InsydeH2O, BIOS password, Secure Boot, FAT32, fsarchiver, Ubuntu backup, USB boot failure">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Rabah Khan">
+  <link rel="canonical" href="https://rabahkhanwork-cmd.github.io/guides/clonezilla-uefi-b51-30/">
+  <meta property="og:title" content="Clonezilla UEFI Boot Fix — Lenovo B51-30 Complete Guide">
+  <meta property="og:description" content="Fix Clonezilla USB boot failure on UEFI-locked Lenovo B51-30: BIOS passwords, ZIP format, FAT32, and Ubuntu backup.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://rabahkhanwork-cmd.github.io/guides/clonezilla-uefi-b51-30/">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Fix Clonezilla UEFI Boot Failure on Lenovo B51-30",
+    "description": "Resolve USB boot failure on a UEFI-locked Lenovo B51-30 by removing BIOS passwords, using the correct ZIP image format on FAT32, and fixing kernel load errors.",
+    "totalTime": "PT30M",
+    "step": [
+      {"@type":"HowToStep","position":1,"name":"Remove BIOS Passwords","text":"Enter BIOS (F2), navigate to Security tab, remove Admin/User/Master/HDD passwords, then Save and Exit."},
+      {"@type":"HowToStep","position":2,"name":"Download Clonezilla ZIP","text":"Download ZIP format from clonezilla.org — not ISO. ZIP is required for UEFI-native boot."},
+      {"@type":"HowToStep","position":3,"name":"Format USB as FAT32","text":"Format USB drive as FAT32. UEFI firmware cannot read NTFS or exFAT at boot time."},
+      {"@type":"HowToStep","position":4,"name":"Extract ZIP to USB Root","text":"Extract ZIP contents directly to the root of the USB — no parent folder. EFI/BOOT/BOOTX64.EFI must be at root level."},
+      {"@type":"HowToStep","position":5,"name":"Configure BIOS and Boot","text":"Disable Secure Boot, enable USB Boot, set mode to UEFI. Press F12 at power-on and select the USB UEFI option."}
+    ]
+  }
+  </script>
+  <style>
+    :root{--bg:#0f172a;--card:#1e293b;--accent:#3b82f6;--accent-light:#60a5fa;--text:#f8fafc;--muted:#94a3b8;--border:#334155;--code-bg:#0d1117}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+    a{color:var(--accent-light);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    header{border-bottom:1px solid var(--border);padding:1.5rem 5%;display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin:0 auto}
+    .logo{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700}.logo span{color:var(--accent)}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s}.back-link:hover{color:var(--accent-light)}
+
+    .guide-nav{position:sticky;top:0;background:rgba(15,23,42,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:100}
+    .guide-nav-inner{max-width:1100px;margin:0 auto;padding:0 5%;display:flex;gap:0;overflow-x:auto}
+    .guide-nav a{display:inline-block;padding:.85rem 1.1rem;color:var(--muted);text-decoration:none;font-size:.82rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+    .guide-nav a:hover{color:var(--text);border-bottom-color:var(--accent)}
+
+    main{max-width:1100px;margin:0 auto;padding:3rem 5% 5rem}
+
+    .breadcrumb{font-size:.8rem;color:var(--muted);margin-bottom:1.5rem;font-family:'JetBrains Mono',monospace}
+    .breadcrumb a{color:var(--muted)}.breadcrumb a:hover{color:var(--accent-light)}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+    .tag{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .75rem;border-radius:50px;background:rgba(59,130,246,.15);color:var(--accent-light);border:1px solid rgba(59,130,246,.3)}
+    h1{font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:700;line-height:1.25;margin-bottom:.75rem}
+    .hero-meta{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:1.2rem}
+    .lead{color:#cbd5e1;font-size:1.05rem;line-height:1.75;max-width:780px;margin-bottom:3rem}
+
+    .guide-section{margin-bottom:4rem;padding-top:2.5rem;border-top:1px solid var(--border)}
+    .section-label{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-light);font-weight:600;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+    .guide-section h2{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;margin-bottom:1.5rem}
+    .guide-section h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:600;margin:2rem 0 .75rem;color:var(--accent-light)}
+    .guide-section p{color:var(--muted);line-height:1.75;margin-bottom:1rem}
+    .guide-section strong{color:var(--text)}
+
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;overflow-x:auto;margin:1rem 0}
+    pre code{font-family:'JetBrains Mono','Courier New',monospace;font-size:.82rem;color:#e2e8f0;line-height:1.65}
+    code{font-family:'JetBrains Mono',monospace;font-size:.83em;background:rgba(59,130,246,.1);color:var(--accent-light);padding:.15em .4em;border-radius:4px}
+    pre code{background:none;padding:0;color:#e2e8f0}
+
+    ul,ol{padding-left:1.5rem;margin-bottom:1rem;color:var(--muted);line-height:1.75}
+    li{margin-bottom:.4rem}
+    li strong{color:var(--text)}
+
+    .table-wrap{overflow-x:auto;margin:1rem 0}
+    table{width:100%;border-collapse:collapse;font-size:.88rem}
+    th{background:var(--card);color:var(--accent-light);padding:.7rem 1rem;text-align:left;font-weight:600;border:1px solid var(--border);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}
+    td{padding:.65rem 1rem;border:1px solid var(--border);color:var(--muted)}
+    tr:nth-child(even) td{background:rgba(30,41,59,.4)}
+    td strong{color:var(--text)}
+
+    .callout{border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1rem 0;background:rgba(59,130,246,.07)}
+    .callout.warn{border-color:#f59e0b;background:rgba(245,158,11,.07)}
+    .callout.ok{border-color:#22c55e;background:rgba(34,197,94,.07)}
+    .callout p{color:var(--text);margin:0}
+
+    .issue-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:.875rem}
+    .issue-card h4{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;margin-bottom:.5rem;color:var(--text)}
+    .issue-card p{color:var(--muted);font-size:.92rem;margin:0}
+
+    .steps{counter-reset:step-counter}
+    .step{counter-increment:step-counter;position:relative;padding-left:3.25rem;margin-bottom:2.5rem}
+    .step::before{content:counter(step-counter);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.5);color:var(--accent-light);border-radius:50%;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.82rem;display:grid;place-items:center}
+    .step h3{margin-top:0;color:var(--text)}
+
+    .badge{display:inline-flex;align-items:center;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:50px}
+    .badge-ok{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+
+    footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;color:var(--muted);font-size:.85rem;max-width:1100px;margin:0 auto}
+    @media(max-width:600px){h1{font-size:1.7rem}.guide-nav a{padding:.75rem .8rem;font-size:.76rem}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Rabah<span>.</span></div>
+  <a href="/guides/" class="back-link">← Guides</a>
+</header>
+
+<nav class="guide-nav">
+  <div class="guide-nav-inner">
+    <a href="#problem">Problem</a>
+    <a href="#symptoms">Symptoms</a>
+    <a href="#instructions">Instructions</a>
+    <a href="#solutions">Solutions</a>
+    <a href="#results">Results</a>
+  </div>
+</nav>
+
+<main>
+  <div class="breadcrumb"><a href="/">Home</a> › <a href="/guides/">Guides</a> › Clonezilla UEFI Boot Fix</div>
+  <div class="hero-tags">
+    <span class="tag">UEFI</span>
+    <span class="tag">Clonezilla</span>
+    <span class="tag">Lenovo B51-30</span>
+    <span class="tag">InsydeH2O</span>
+    <span class="tag">Ubuntu</span>
+    <span class="tag">fsarchiver</span>
+    <span class="tag">Linux</span>
+  </div>
+  <h1>Clonezilla UEFI Boot Failure on Lenovo B51-30<br>Complete Fix Guide</h1>
+  <div class="hero-meta">
+    <span>16 June 2026</span>
+    <span>Hardware · BIOS · Linux</span>
+    <span>~30 min read</span>
+  </div>
+  <p class="lead">Resolving a multi-layered boot failure on a UEFI-locked InsydeH2O laptop: BIOS password removal, correct Clonezilla image format, kernel load error recovery, and Ubuntu filesystem backup to external disk with fsarchiver.</p>
+
+  <!-- ═══════════════════════════════════════════════════════ PROBLEM ══ -->
+  <section id="problem" class="guide-section">
+    <div class="section-label">01 / Problem</div>
+    <h2>Problem Statement</h2>
+    <p>Booting Clonezilla from USB on the Lenovo B51-30 fails completely. The USB is not recognized as bootable and the system falls back to the internal disk GRUB menu (Windows/Ubuntu dual-boot). Five distinct failure modes occur simultaneously, each pointing to a locked BIOS security state and an incorrect USB image format.</p>
+
+    <h3>Environment</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Component</th><th>Details</th></tr>
+      <tr><td><strong>Laptop</strong></td><td>Lenovo B51-30</td></tr>
+      <tr><td><strong>BIOS</strong></td><td>InsydeH2O (UEFI firmware)</td></tr>
+      <tr><td><strong>Internal Disk</strong></td><td>Seagate ST500LT012 (500GB)</td></tr>
+      <tr><td><strong>OS</strong></td><td>Windows 10 + Ubuntu dual-boot</td></tr>
+      <tr><td><strong>USB Drive</strong></td><td>16GB (previously used for OS installs)</td></tr>
+      <tr><td><strong>Clonezilla</strong></td><td>v3.3.2-31-amd64</td></tr>
+    </table></div>
+
+    <h3>Primary Issues</h3>
+    <div class="issue-card">
+      <h4>1. USB Drive Not Detected in Boot Menu</h4>
+      <p>Boot Option Menu shows only internal disk entries. No USB option appears despite drive being plugged in. System boots straight to Windows/Ubuntu GRUB.</p>
+    </div>
+    <div class="issue-card">
+      <h4>2. BIOS Settings Cannot Be Saved</h4>
+      <p>Changes made in BIOS (disable Secure Boot, enable USB boot) revert immediately. "Save and Exit" loops back to BIOS setup. Secure Boot re-enables, USB boot disables — every time.</p>
+    </div>
+    <div class="issue-card">
+      <h4>3. GRUB EFI Variable Error</h4>
+      <p><code>error: could not set EFI variable 'OsIndications'</code> when attempting to enter BIOS firmware from GRUB. Indicates NVRAM/EFI write protection is active.</p>
+    </div>
+    <div class="issue-card">
+      <h4>4. BIOS Flash Failure at 50%</h4>
+      <p>InsydeH2O flash utility reaches 50% then fails: <code>Invalid firmware image</code>. The BIOS file is correct (model matches, version is newer) but the security subsystem blocks the EC firmware write.</p>
+    </div>
+    <div class="issue-card">
+      <h4>5. Clonezilla Kernel Load Failure</h4>
+      <p>When USB is eventually detected: <code>invalid magic number</code> then <code>you have to load the kernel first</code>. GRUB drops to command line. Root cause: ISO format is incompatible with UEFI directory structure.</p>
+    </div>
+
+    <h3>Methods Tried That Failed</h3>
+    <ul>
+      <li>Rufus with ISO image in ISO mode</li>
+      <li>Rufus with ISO image in DD mode</li>
+      <li>Changing BIOS boot mode to Legacy/CSM</li>
+      <li>Multiple USB ports (USB 2.0 and 3.0)</li>
+      <li>BIOS update via Windows utility (failed at 50%)</li>
+      <li>Removing CMOS battery (no effect on passwords)</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ SYMPTOMS ══ -->
+  <section id="symptoms" class="guide-section">
+    <div class="section-label">02 / Symptoms</div>
+    <h2>Symptoms &amp; Diagnostic Signs</h2>
+
+    <h3>Symptom 1: USB Invisible in Boot Menu</h3>
+    <pre><code>Boot Option Menu
+├── Ubuntu (ST500LT012-1DG142)
+├── Windows Boot Manager (ST500LT012-1DG142)
+└── ubuntu (ST500LT012-1DG142)
+
+[USB drive is NOT listed]</code></pre>
+    <p><strong>Meaning:</strong> Firmware does not recognize the USB as a valid bootable device. Not a hardware failure — the USB LED lights, the drive works in Windows.</p>
+    <p><strong>Diagnostic check:</strong> Was the USB created with Rufus ISO mode? → Yes = wrong format for UEFI.</p>
+
+    <h3>Symptom 2: BIOS Settings Revert Loop</h3>
+    <p>Enter BIOS → change setting → F10 Save &amp; Exit → system reboots → <strong>immediately returns to BIOS setup</strong> → changed setting is back to original.</p>
+    <div class="callout warn">
+      <p><strong>Key indicator:</strong> You can enter the password to unlock settings (they become editable) but cannot SAVE — the security layer rejects any write to NVRAM.</p>
+    </div>
+
+    <h3>Symptom 3: GRUB OsIndications Error</h3>
+    <pre><code>error: could not set EFI variable 'OsIndications'.
+Press any key to continue...</code></pre>
+    <p><strong>Meaning:</strong> GRUB failed to write the EFI variable that requests BIOS setup on next boot. NVRAM is locked by active security settings.</p>
+
+    <h3>Symptom 4: BIOS Flash — Invalid Firmware Image</h3>
+    <pre><code>Insyde H2OFFT (Flash Firmware Tool)
+Current BIOS Version: C5CN32WW(v2.03)
+New BIOS Version:     C5CN35WW(v2.06)
+
+[Progress bar reaches 50%]
+
+Error: Invalid firmware image!!!
+Please press any key to reset system...</code></pre>
+    <p><strong>Meaning:</strong> The BIOS file is correct. The 50% failure marks the EC (Embedded Controller) firmware update — which the locked state blocks. No damage occurs; the system just reboots.</p>
+
+    <h3>Symptom 5: Kernel Load Failure</h3>
+    <pre><code>error: invalid magic number
+error: you have to load the kernel first
+
+grub&gt; _</code></pre>
+    <p><strong>Meaning:</strong> GRUB found the menu config but cannot read <code>vmlinuz</code> from the USB. The ISO format writes files in a structure UEFI cannot navigate — the kernel path resolves to nothing.</p>
+
+    <h3>Symptom 6: Windows/Ubuntu GRUB Instead of Clonezilla</h3>
+    <p>Booting with USB plugged in shows the internal disk GRUB (Ubuntu / Windows Boot Manager) instead of the Clonezilla menu. The laptop is ignoring the USB entirely due to wrong format, Fast Boot priority, or Secure Boot blocking the unsigned bootloader.</p>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ INSTRUCTIONS ══ -->
+  <section id="instructions" class="guide-section">
+    <div class="section-label">03 / Instructions</div>
+    <h2>Step-by-Step: Creating a UEFI-Compatible Clonezilla USB</h2>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Download the Correct File — ZIP, Not ISO</h3>
+        <p>Go to <a href="https://clonezilla.org/downloads.php" target="_blank" rel="noopener">clonezilla.org/downloads.php</a>. Select your architecture (amd64). Choose <strong>ZIP</strong> format. Download e.g. <code>clonezilla-live-3.3.2-31-amd64.zip</code>.</p>
+        <div class="table-wrap"><table>
+          <tr><th>Format</th><th>Boot Type</th><th>UEFI Compatible</th></tr>
+          <tr><td>ISO</td><td>Legacy/BIOS only</td><td>❌ No</td></tr>
+          <tr><td>ZIP</td><td>UEFI native</td><td>✅ Yes</td></tr>
+        </table></div>
+      </div>
+
+      <div class="step">
+        <h3>Format USB as FAT32</h3>
+        <p>UEFI firmware can only read FAT32 (or FAT16) during boot. NTFS and exFAT are not supported at the firmware level.</p>
+        <p><strong>Windows:</strong> Right-click USB in File Explorer → Format → File system: <strong>FAT32</strong> → Quick Format ✓ → Start.</p>
+        <p><strong>Linux:</strong></p>
+        <pre><code>sudo mkfs.vfat -F 32 /dev/sdX
+# Replace sdX with your actual USB device (check with lsblk)</code></pre>
+      </div>
+
+      <div class="step">
+        <h3>Extract ZIP to USB Root — Critical Rule</h3>
+        <p>Extract the ZIP contents <strong>directly to the root</strong> of the USB. Do NOT leave them inside a parent folder.</p>
+        <p><strong>Correct structure:</strong></p>
+        <pre><code>E:├── 📁 EFI
+│   └── 📁 BOOT
+│       └── BOOTX64.EFI      ← UEFI bootloader
+├── 📁 live
+│   ├── vmlinuz              ← Linux kernel
+│   └── initrd.img
+├── 📁 syslinux
+└── 📄 Clonezilla-Live-Version</code></pre>
+        <p><strong>Wrong structure</strong> (extraction created a parent folder — move contents up one level):</p>
+        <pre><code>E:└── 📁 clonezilla-live-3.3.2-31-amd64   ← Extra folder. Open, select all, cut, paste to E:\</code></pre>
+      </div>
+
+      <div class="step">
+        <h3>Configure BIOS — Remove Passwords First</h3>
+        <div class="callout warn">
+          <p><strong>CRITICAL:</strong> If any BIOS password is set, no settings will save. Remove all passwords before changing anything.</p>
+        </div>
+        <p><strong>Remove passwords:</strong> Power on → F2 → Security tab → remove each (Admin, User, Master, HDD) by entering current password, leaving new password blank → Save &amp; Exit (F10).</p>
+        <p><strong>Configure boot:</strong> Re-enter BIOS → Security → <strong>Secure Boot: Disabled</strong> → Boot → <strong>USB Boot: Enabled</strong> → Boot Mode: <strong>UEFI</strong> → (optional) Fast Boot: Disabled → Save &amp; Exit.</p>
+        <p><strong>Verify:</strong> Re-enter BIOS and confirm settings still show your saved values. If they do, the lock is gone. ✅</p>
+      </div>
+
+      <div class="step">
+        <h3>Boot from USB via F12 One-Time Boot Menu</h3>
+        <p>Insert prepared USB → power on → press <strong>F12</strong> immediately (Lenovo) → select <strong>USB UEFI</strong> or your USB brand name → Enter.</p>
+        <p><strong>Expected Clonezilla GRUB:</strong></p>
+        <pre><code>Clonezilla live (VGA 800x600)
+Clonezilla live (VGA 800x600 &amp; To RAM)
+Clonezilla live (VGA with large font &amp; To RAM)
+Clonezilla live (Verify integrity of the boot medium)
+Other modes of Clonezilla live
+Local operating system (if available)
+UEFI firmware setup</code></pre>
+        <p>If you still see the Windows/Ubuntu GRUB: confirm ZIP format was used, FAT32 filesystem, files are at root level, all BIOS passwords removed, Secure Boot is off.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ SOLUTIONS ══ -->
+  <section id="solutions" class="guide-section">
+    <div class="section-label">04 / Solutions</div>
+    <h2>Solutions &amp; Fixes — Complete Resolution Path</h2>
+
+    <h3>Solution 1: Remove BIOS Password Locks (Do This First)</h3>
+    <p>Multiple BIOS security layers (Admin, User, Master, HDD passwords) prevent all firmware modification. This is the root cause of the settings revert loop, flash failure, and EFI variable errors.</p>
+    <pre><code>Enter BIOS (F2) → Security Tab
+
+Administrator Password  →  [current]  →  [leave blank]  →  Enter
+User Password           →  [current]  →  [leave blank]  →  Enter
+Master Password         →  [current]  →  [leave blank]  →  Enter
+HDD Password            →  [current]  →  [leave blank]  →  Enter
+
+→ Exit Tab → Save Changes and Exit (F10)</code></pre>
+    <div class="callout ok">
+      <p><strong>After this fix:</strong> Settings save permanently. USB boot appears in menu. GRUB writes EFI variables. BIOS flash utility can write firmware.</p>
+    </div>
+
+    <h3>Solution 2: ZIP Image + FAT32 for UEFI</h3>
+    <p>ISO images target Legacy/BIOS boot. UEFI firmware cannot locate the bootloader (<code>BOOTX64.EFI</code>) in an ISO-created directory structure.</p>
+    <ol>
+      <li>Download Clonezilla <strong>ZIP</strong> image (not ISO)</li>
+      <li>Format USB as <strong>FAT32</strong> (not NTFS, not exFAT)</li>
+      <li>Extract ZIP to <strong>root</strong> of USB — no parent folder</li>
+    </ol>
+    <p>After extraction, verify <code>EFI/BOOT/BOOTX64.EFI</code> exists at root level.</p>
+
+    <h3>Solution 3: Manual Kernel Load via GRUB Command Line (Emergency)</h3>
+    <p>If you see <code>invalid magic number</code> or <code>you have to load the kernel first</code>, press <strong>C</strong> at the Clonezilla GRUB menu for a command prompt:</p>
+    <pre><code>grub&gt; ls
+grub&gt; ls (hd0,msdos1)/
+grub&gt; set root=(hd0,msdos1)
+grub&gt; linux /live/vmlinuz boot=live union=overlay username=user config components quiet
+grub&gt; initrd /live/initrd.img
+grub&gt; boot</code></pre>
+    <p><strong>Alternative:</strong> Highlight first menu entry → press <strong>E</strong> → locate the <code>linux</code> line → fix or remove wrong device prefix before <code>/live/vmlinuz</code> → press <strong>Ctrl+X</strong> to boot.</p>
+
+    <h3>Solution 4: BIOS Flash via Windows (After Unlocking)</h3>
+    <p>Only attempt after removing all BIOS passwords. The flash will succeed because the security subsystem no longer blocks NVRAM writes.</p>
+    <ol>
+      <li>Boot into Windows</li>
+      <li>Download correct BIOS <code>.exe</code> from Lenovo Support (model AIWB0, target v2.06)</li>
+      <li>Run as Administrator → Install → Flash BIOS → Enter to start</li>
+      <li>Do NOT power off during flash — system reboots automatically</li>
+    </ol>
+
+    <h3>Solution 5: Ubuntu Backup with fsarchiver</h3>
+    <p><code>dd</code> creates a raw 289GB image that will not fit in 267GB and cannot restore to a smaller disk. Use <code>fsarchiver</code> for file-based compressed backup that restores to any disk size.</p>
+    <pre><code>sudo mkdir -p /mnt/target
+sudo mount /dev/sdc6 /mnt/target
+sudo mkdir -p /mnt/target/backup
+
+# Save partition table for reference
+sudo sfdisk -d /dev/sda &gt; /mnt/target/backup/partition-table.txt
+
+# Backup small EFI partitions with dd (fast, fixed-size)
+sudo dd if=/dev/sda1 of=/mnt/target/backup/sda1-efi.img bs=4M status=progress
+sudo dd if=/dev/sda4 of=/mnt/target/backup/sda4-efi.img bs=4M status=progress
+
+# Backup Ubuntu — only used data, zstd compressed
+sudo fsarchiver savefs /mnt/target/backup/ubuntu.fsa /dev/sda5
+
+sudo umount /mnt/target</code></pre>
+
+    <h3>Solution 6: Restore to New Disk</h3>
+    <pre><code># Restore Ubuntu to new partition (any disk size)
+sudo fsarchiver restfs /path/to/ubuntu.fsa id=0,dest=/dev/sdX5
+
+# Restore EFI boot partitions
+sudo dd if=/mnt/target/backup/sda1-efi.img of=/dev/sdX1 bs=4M status=progress
+sudo dd if=/mnt/target/backup/sda4-efi.img of=/dev/sdX4 bs=4M status=progress</code></pre>
+    <p>Only requirement for the target disk: must accommodate ~150GB of actual data.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ RESULTS ══ -->
+  <section id="results" class="guide-section">
+    <div class="section-label">05 / Results</div>
+    <h2>Results &amp; Outcomes</h2>
+
+    <h3>BIOS Fully Unlocked</h3>
+    <p>All 4 passwords removed. Settings save permanently on every reboot. USB boot option is visible and enabled. Secure Boot stays disabled when set. GRUB writes EFI variables without error.</p>
+
+    <h3>Clonezilla USB Boots Successfully</h3>
+    <p>USB UEFI option now appears in the F12 boot menu. Full Clonezilla GRUB menu loads:</p>
+    <pre><code>Clonezilla GNU GRUB
+
+Clonezilla live (VGA 800x600)
+Clonezilla live (VGA 800x600 &amp; To RAM)
+Clonezilla live (VGA with large font &amp; To RAM)
+Clonezilla live (Verify integrity of the boot medium)
+Clonezilla live (Speech synthesis)
+Other modes of Clonezilla live
+Local operating system (if available)
+Memtester (VGA 800x600 &amp; To RAM)
+UEFI firmware setup
+Clonezilla live 20260525-resolute-amd64 info</code></pre>
+
+    <h3>Ubuntu Backup Completed</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Ubuntu partition size</td><td>289 GB</td></tr>
+      <tr><td>Used data</td><td>~150 GB</td></tr>
+      <tr><td>Compressed backup (ubuntu.fsa)</td><td>~85 GB</td></tr>
+      <tr><td>Destination available</td><td>267 GB</td></tr>
+      <tr><td>Files processed</td><td>257,656 (0 errors)</td></tr>
+      <tr><td>Compression</td><td>zstd level 3</td></tr>
+      <tr><td>Archive format</td><td>FSA0002</td></tr>
+    </table></div>
+
+    <h3>BIOS Firmware Updated</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Attribute</th><th>Before</th><th>After</th></tr>
+      <tr><td>BIOS Version</td><td>C5CN32WW (v2.03)</td><td>C5CN35WW (v2.06)</td></tr>
+      <tr><td>NVRAM</td><td>Corrupted</td><td>Repaired</td></tr>
+      <tr><td>SPD write</td><td>Disabled</td><td>Enabled</td></tr>
+      <tr><td>Intel TXE</td><td>—</td><td>2.0.5.3107</td></tr>
+      <tr><td>Settings storage</td><td>Broken</td><td>Functional</td></tr>
+    </table></div>
+
+    <h3>Issue Resolution Summary</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Issue</th><th>Status</th><th>Fix Applied</th></tr>
+      <tr><td>USB not in boot menu</td><td><span class="badge badge-ok">✅ Resolved</span></td><td>ZIP image + FAT32 + root extraction</td></tr>
+      <tr><td>BIOS settings reverting</td><td><span class="badge badge-ok">✅ Resolved</span></td><td>Removed all BIOS passwords</td></tr>
+      <tr><td>GRUB OsIndications error</td><td><span class="badge badge-ok">✅ Resolved</span></td><td>BIOS unlock re-enabled NVRAM writes</td></tr>
+      <tr><td>Invalid firmware image</td><td><span class="badge badge-ok">✅ Resolved</span></td><td>BIOS unlock allowed flash to complete</td></tr>
+      <tr><td>Kernel load failure</td><td><span class="badge badge-ok">✅ Resolved</span></td><td>Correct format + manual GRUB fix documented</td></tr>
+      <tr><td>Ubuntu backup</td><td><span class="badge badge-ok">✅ Completed</span></td><td>fsarchiver to external disk (85GB compressed)</td></tr>
+    </table></div>
+
+    <h3>Key Takeaways</h3>
+    <ol>
+      <li><strong>BIOS passwords are the silent killer</strong> — they cause symptoms that look like hardware failure, NVRAM corruption, or firmware bugs. Check security locks first.</li>
+      <li><strong>UEFI needs ZIP, not ISO</strong> — ISO format is legacy-only. UEFI requires the ZIP structure on FAT32 with <code>EFI/BOOT/BOOTX64.EFI</code> at root level.</li>
+      <li><strong>Path depth matters</strong> — extra folder layers break UEFI boot. Files must be at the root of the FAT32 filesystem.</li>
+      <li><strong>fsarchiver &gt; dd for flexible backups</strong> — file-based compressed backup restores to any disk size; raw sector images do not.</li>
+      <li><strong>Always verify settings save after BIOS change</strong> — if they revert, check security locks before assuming corruption or hardware failure.</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Rabah Khan · <a href="/" style="color:var(--muted)">Independent Research</a> · <a href="/guides/" style="color:var(--muted)">Guides</a></p>
+</footer>
+
+</body>
+</html>
